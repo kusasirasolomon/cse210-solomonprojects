@@ -13,7 +13,20 @@ public static class Arrays
         // step by step before you write the code. The plan should be clear enough that it could
         // be implemented by another person.
 
-        return []; // replace this return statement with your own
+        //step1; Create a new array of doubles with the size of length parameter
+        double[] result = new double[length];
+
+        //step2; use a for loop to go through each index of the array
+        for (int i = 0; i < length; i++)
+        {
+            //step3; for each index, calculate the multiple of number and (i + 1) and assign it to the array at index i
+            double multiple = (i + 1) * number;
+            // step4; store the calculted multiple into the array at the current index
+            result[i] = multiple;
+        }
+        //step5; after the loop finishes return the filled array
+
+        return result; // replace this return statement with your own
     }
 
     /// <summary>
@@ -29,5 +42,15 @@ public static class Arrays
         // Remember: Using comments in your program, write down your process for solving this problem
         // step by step before you write the code. The plan should be clear enough that it could
         // be implemented by another person.
+
+        //step1; Determine the starting index for the rotation
+        int startIndex = data.Count - amount;
+        //step2; Create a temporary list with the last 'amount' elements from original list
+        List<int> temp = data.GetRange(startIndex, amount);
+        //step3; Remove the last amount elements from the original list
+        data.RemoveRange(startIndex, amount);
+        //step4; Insert the temporary list elements at the beginning of the original list now
+        data.InsertRange(0, temp);
+        //step5; The original list is now rotated to the right by the specified amount
     }
 }
