@@ -1,57 +1,76 @@
+
+
 /// <summary>
-/// This queue is circular.  When people are added via AddPerson, then they are added to the 
-/// back of the queue (per FIFO rules).  When GetNextPerson is called, the next person
-/// in the queue is saved to be returned and then they are placed back into the back of the queue.  Thus,
-/// each person stays in the queue and is given turns.  When a person is added to the queue, 
-/// a turns parameter is provided to identify how many turns they will be given.  If the turns is 0 or
-/// less than they will stay in the queue forever.  If a person is out of turns then they will 
-/// not be added back into the queue.
+/// Implements a circular queue of people where each person is given a number of turns.
+/// People are added to the back of the queue (FIFO). Each time a person takes a turn,
+/// they may be added back to the queue depending on how many turns they have remaining.
+///
+/// Rules:
+/// - If a person's turns are greater than 0, one turn is consumed each time they are returned.
+/// - If a person's turns reach 0, they are removed from the queue permanently.
+/// - If a person's turns are 0 or less initially, they have infinite turns and are
+///   always added back to the queue without modifying the turns value.
+/// - If the queue is empty when attempting to get the next person, an exception is thrown.
 /// </summary>
 public class TakingTurnsQueue
 {
-    private readonly PersonQueue _people = new();
+    // Internal queue used to store Person objects in FIFO order
+    private Queue<Person> _queue = new Queue<Person>();
 
-    public int Length => _people.Length;
+    // Returns the current number of people in the queue
+    public int Length => _queue.Count;
 
     /// <summary>
-    /// Add new people to the queue with a name and number of turns
+    /// Adds a new person to the back of the queue with the specified number of turns.
     /// </summary>
-    /// <param name="name">Name of the person</param>
-    /// <param name="turns">Number of turns remaining</param>
+    /// <param name="name">The name of the person</param>
+    /// <param name="turns">
+    /// The number of turns the person has.
+    /// A value of 0 or less represents an infinite number of turns.
+    /// </param>
     public void AddPerson(string name, int turns)
     {
-        var person = new Person(name, turns);
-        _people.Enqueue(person);
+        _queue.Enqueue(new Person(name, turns));
     }
 
     /// <summary>
-    /// Get the next person in the queue and return them. The person should
-    /// go to the back of the queue again unless the turns variable shows that they 
-    /// have no more turns left.  Note that a turns value of 0 or less means the 
-    /// person has an infinite number of turns.  An error exception is thrown 
-    /// if the queue is empty.
+    /// Removes the next person from the front of the queue and returns them.
+    /// The person is added back to the queue if they still have turns remaining
+    /// or if they have infinite turns (turns <= 0).
+    ///
+    /// Throws an InvalidOperationException if the queue is empty.
     /// </summary>
     public Person GetNextPerson()
     {
-        if (_people.IsEmpty())
+        // If the queue is empty, throw the required exception
+        if (_queue.Count == 0)
         {
             throw new InvalidOperationException("No one in the queue.");
         }
+
+        // Remove the next person from the front of the queue
+        var person = _queue.Dequeue();
+
+        // Case 1: Infinite turns (0 or less)
+        // The person is always re-added without modifying the turns value
+        if (person.Turns <= 0)
+        {
+            _queue.Enqueue(person);
+        }
+        // Case 2: Finite turns
         else
         {
-            Person person = _people.Dequeue();
-            if (person.Turns > 1)
+            // Consume one turn
+            person.Turns--;
+
+            // Re-add the person only if they still have turns remaining
+            if (person.Turns > 0)
             {
-                person.Turns -= 1;
-                _people.Enqueue(person);
+                _queue.Enqueue(person);
             }
-
-            return person;
         }
-    }
 
-    public override string ToString()
-    {
-        return _people.ToString();
+        // Return the person who took the turn
+        return person;
     }
 }
