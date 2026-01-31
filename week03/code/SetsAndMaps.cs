@@ -22,8 +22,35 @@ public static class SetsAndMaps
     public static string[] FindPairs(string[] words)
     {
         // TODO Problem 1 - ADD YOUR CODE HERE
-        return [];
+    
+    
+        var seen = new HashSet<string>();
+        var result = new List<string>();
+
+        foreach (var word in words)
+        {
+            // Special case: same letters like "aa"
+            if (word[0] == word[1])
+                continue;
+
+            // Reverse the word
+            string reversed = $"{word[1]}{word[0]}";
+
+            // If reversed already exists → pair found
+            if (seen.Contains(reversed))
+            {
+                result.Add($"{reversed} & {word}");
+            }
+            else
+            {
+                seen.Add(word);
+            }
+        }
+
+        return result.ToArray();
     }
+
+        
 
     /// <summary>
     /// Read a census file and summarize the degrees (education)
@@ -43,6 +70,12 @@ public static class SetsAndMaps
         {
             var fields = line.Split(",");
             // TODO Problem 2 - ADD YOUR CODE HERE
+            string degree = fields[3].Trim();
+
+            if (!degrees.ContainsKey(degree))
+                degrees[degree] = 1;
+            else
+                degrees[degree]++;
         }
 
         return degrees;
@@ -67,8 +100,42 @@ public static class SetsAndMaps
     public static bool IsAnagram(string word1, string word2)
     {
         // TODO Problem 3 - ADD YOUR CODE HERE
-        return false;
+        // Normalize: remove spaces, lowercase
+        word1 = word1.Replace(" ", "").ToLower();
+        word2 = word2.Replace(" ", "").ToLower();
+
+        if (word1.Length != word2.Length)
+            return false;
+
+        var counts = new Dictionary<char, int>();
+
+        // Count letters in word1
+        foreach (char c in word1)
+        {
+            if (!counts.ContainsKey(c))
+                counts[c] = 1;
+            else
+                counts[c]++;
+        }
+
+        // Subtract using word2
+        foreach (char c in word2)
+        {
+            if (!counts.ContainsKey(c))
+                return false;
+
+            counts[c]--;
+
+            if (counts[c] < 0)
+                return false;
+
+        }
+        return true;
     }
+
+
+
+  
 
     /// <summary>
     /// This function will read JSON (Javascript Object Notation) data from the 
